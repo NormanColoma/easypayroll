@@ -6,15 +6,11 @@ import(
 	"net/http"
 )
 
-type Tax struct {
-	Name string
-	Percentage float32
-	Total float32
-}
+import . "./domain"
 
 type Deductions struct {
 	Total float32
-	Taxes []Tax
+	Taxes [] Tax
 }
 type Amount struct {
 	Gross float32
@@ -31,6 +27,14 @@ type Payroll struct {
 }
 
 func handle(w http.ResponseWriter, r *http.Request) {
+	unemploymentTax := Tax {
+		Name: "Cotización Desempleo",
+	}
+	contingencyTax := Tax {
+		Name: "Cotización Cotingencias Comunes",
+	}
+	unemploymentTax.CalculateTax(3000, UnemploymentTax)
+	contingencyTax.CalculateTax(3000, CommonContingency)
 
 	payroll := Payroll{
 		Amount: Amount{2500, 2123.22, 2123.22, 2500},
@@ -39,8 +43,8 @@ func handle(w http.ResponseWriter, r *http.Request) {
 		Deductions: Deductions{
 			Total: 429.10,
 			Taxes: []Tax{
-				{ Name: "IRPF", Percentage: 7, Total: 376.88},
-				{ Name: "Seguridad Social", Percentage: 4.22, Total: 52.32 },
+				unemploymentTax,
+				contingencyTax,
 			},
 		},
 	}
