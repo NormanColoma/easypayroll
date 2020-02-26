@@ -9,7 +9,7 @@ type Tax struct {
 	Total float32
 }
 
-func (tax *Tax) CalculateTax(gross float32, taxPercentage float32) {
+func (tax *Tax) Calculate(gross float32, taxPercentage float32) {
 	tax.Percentage = taxPercentage
 	tax.Total = gross * (tax.Percentage / 100)
 }

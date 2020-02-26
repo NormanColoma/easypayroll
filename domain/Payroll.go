@@ -1,5 +1,12 @@
 package domain
 
+var ranges = map[float32]float32{
+	12450: 0.19,
+	20200: 0.24,
+	35200: 0.30,
+	60000: 0.37,
+	60001: 0.45,
+}
 type Amount struct {
 	Gross float32
 	Net float32
@@ -17,18 +24,11 @@ type Payroll struct {
 func (payroll *Payroll)CalculatePayroll(amount Amount) {
 	payroll.Amount = amount
 
-	unemploymentTax := Tax {
-		Name: "Cotización Desempleo",
-	}
-	contingencyTax := Tax {
-		Name: "Cotización Cotingencias Comunes",
-	}
-	unemploymentTax.CalculateTax(amount.Gross, UnemploymentTax)
-	contingencyTax.CalculateTax(amount.Gross, CommonContingency)
-
 	deduction := Deduction{}
-	deduction.AddTax(unemploymentTax)
-	deduction.AddTax(contingencyTax)
+	deduction.AddTax("Cotización Desempleo", amount.Gross, UnemploymentTax)
+	deduction.AddTax("Cotización Cotingencias Comunes", amount.Gross, CommonContingency)
 
 	payroll.Deduction = deduction
 }
+
+
