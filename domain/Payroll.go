@@ -1,6 +1,8 @@
 package domain
 
-import "sort"
+import (
+	"sort"
+)
 
 var irpfSections = map[float32]float32{
 	12450: 0.19,
@@ -35,9 +37,6 @@ func (payroll *Payroll)CalculatePayroll(amount Amount) {
 }
 
 func calculateIRPF(gross float32) float32 {
-	var firstQuota float32
-	var lastSectionApplied float32
-	var grossCalculated float32
 	var keys []float64
 
 	for k := range irpfSections {
@@ -45,24 +44,28 @@ func calculateIRPF(gross float32) float32 {
 	}
 	sort.Float64s(keys)
 
+	var firstQuota float32
+	var lastSectionApplied float32
+	grossAux := gross - 2000
+	grossCalculated := grossAux
+
 	for _, key := range keys {
 		section := float32(key)
-		if grossCalculated >= gross {
-			break
-		}
 
 		if key == 12450 {
 			firstQuota += section * irpfSections[section]
+		} else if section > grossAux {
+			firstQuota += (grossAux - lastSectionApplied) * irpfSections[section]
 		} else {
-			if float32(key) > gross {
-					firstQuota += (gross - lastSectionApplied) * irpfSections[section]
-			} else {
-				firstQuota += (section - lastSectionApplied) * irpfSections[section]
-			}
+			firstQuota += (section - lastSectionApplied) * irpfSections[section]
 		}
 
+		grossCalculated -= section - lastSectionApplied
 		lastSectionApplied = section
-		grossCalculated += section
+
+		if grossCalculated <= 0 {
+			break
+		}
 	}
 
 	var secondQuota float32 = 5500 * 0.19
