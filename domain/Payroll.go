@@ -4,6 +4,8 @@ import (
 	"sort"
 )
 
+const firstSection = 12450
+
 var irpfSections = map[float32]float32{
 	12450: 0.19,
 	20200: 0.24,
@@ -11,6 +13,20 @@ var irpfSections = map[float32]float32{
 	60000: 0.37,
 	60001: 0.45,
 }
+
+var irpfByAge = map[int]int{
+	64: 5500,
+	65: 6700,
+	75: 8100,
+}
+
+var irpfByKids = map[int]int {
+	1: 2400,
+	2: 2700,
+	3: 4000,
+	4: 4500,
+}
+
 type Amount struct {
 	Gross float32
 	Net float32
@@ -44,7 +60,7 @@ func calculateIRPF(gross float32) float32 {
 	}
 	sort.Float64s(keys)
 
-	var firstQuota float32
+	var firstIRPFQuota float32
 	var lastSectionApplied float32
 	grossAux := gross - 2000
 	grossCalculated := grossAux
@@ -52,12 +68,12 @@ func calculateIRPF(gross float32) float32 {
 	for _, key := range keys {
 		section := float32(key)
 
-		if key == 12450 {
-			firstQuota += section * irpfSections[section]
+		if key == firstSection {
+			firstIRPFQuota += section * irpfSections[section]
 		} else if section > grossAux {
-			firstQuota += (grossAux - lastSectionApplied) * irpfSections[section]
+			firstIRPFQuota += (grossAux - lastSectionApplied) * irpfSections[section]
 		} else {
-			firstQuota += (section - lastSectionApplied) * irpfSections[section]
+			firstIRPFQuota += (section - lastSectionApplied) * irpfSections[section]
 		}
 
 		grossCalculated -= section - lastSectionApplied
@@ -68,9 +84,27 @@ func calculateIRPF(gross float32) float32 {
 		}
 	}
 
-	var secondQuota float32 = 5500 * 0.19
+	var secondIRPFQuota float32 = 5500 * 0.19
 
-	return ((firstQuota - secondQuota) / gross) * 100
+	return ((firstIRPFQuota - secondIRPFQuota) / gross) * 100
 }
 
+func discountIRPFByAge(age int) int {
+	switch {
+	case age >= 65 && age < 75:
+		return irpfByAge[65]
+	case age >= 75:
+		return irpfByAge[75]
+	default:
+		return irpfByAge[64]
+	}
+}
+
+func discountIRPFByKids(kids int) int {
+	if val, ok := irpfByKids[kids]; ok {
+		return val
+	} else {
+		return 4500
+	}
+}
 

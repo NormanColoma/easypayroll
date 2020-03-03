@@ -13,7 +13,7 @@ func handle(w http.ResponseWriter, r *http.Request) {
 		Currency: "euros",
 	}
 
-	payroll.CalculatePayroll(Amount{33000, 2123.22, 2123.22, 2500})
+	payroll.CalculatePayroll(Amount{35000, 2123.22, 2123.22, 2500})
 
 	response, err := json.Marshal(payroll)
 
